@@ -1,1 +1,16 @@
 @import "tailwindcss";
+
+@layer base {
+  body {
+    font-family: "Inter", Arial, Helvetica, sans-serif;
+  }
+}
+
+@layer components {
+  .centered-component-using-absolute {
+    @apply absolute top-1/2 left-[5%] translate-y-[-50%];
+  }
+  .lifting-animation-btn {
+    @apply cursor-pointer shadow-md transform transition hover:-translate-y-1 hover:shadow-xl;
+  }
+}

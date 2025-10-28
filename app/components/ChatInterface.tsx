@@ -1,8 +1,23 @@
-import React from "react";
+"use client";
+import React, { useEffect, useRef } from "react";
 import { useChat } from "../context/chatContext";
 
 function ChatInterface() {
-  const { chatMessages } = useChat();
+  const { chatMessages, addChatMessage, loading } = useChat();
+  const autoScrollOnEndOnNewMessageRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (chatMessages.length === 0) {
+      addChatMessage({
+        id: "bot-" + Date.now() + Math.floor(Math.random() * 999) + 1,
+        sender: "bot",
+        text: "Feel Free to ask...",
+      });
+    }
+    autoScrollOnEndOnNewMessageRef.current?.scrollIntoView({
+      behavior: "smooth",
+    });
+  }, [chatMessages, addChatMessage]);
 
   if (!chatMessages || chatMessages.length === 0) {
     return (
@@ -11,24 +26,38 @@ function ChatInterface() {
       </div>
     );
   }
+
   return (
-    <div className="p-4 space-y-2 overflow-y-auto h-[400px] bg-gray-50 rounded-lg shadow-inner">
+    <div className="p-2">
       {chatMessages.map((m) => (
         <div
           key={m.id}
           className={`mb-2 ${
-            m.sender === "user" ? "text-right" : "text-left"
+            m.sender === "user"
+              ? "text-right justify-end"
+              : "text-left justify-start"
           }`}>
           <span
-            className={`inline-block px-3 py-2 rounded-xl ${
+            className={`inline-block px-3 py-2 rounded-xl wrap-break-words ${
               m.sender === "user"
-                ? "bg-blue-500 text-white"
-                : "bg-gray-200 text-black"
+                ? "bg-gray-300 text-black max-w-[80%]"
+                : "bg-[#EAE4D5] text-black max-w-[80%] ml-auto border border-[#EAE4D5]"
             }`}>
             {m.text}
           </span>
         </div>
       ))}
+      {/* bot thinking */}
+      {loading && (
+        <div className="flex justify-start">
+          <div className="text-gray-700 px-4 py-2 rounded-2xl max-w-[75%] italic animate-pulse">
+            Thinking<span className="animate-pulse">...</span>
+          </div>
+        </div>
+      )}
+
+      {/* hidden mark to auto scroll on end */}
+      <div ref={autoScrollOnEndOnNewMessageRef} />
     </div>
   );
 }

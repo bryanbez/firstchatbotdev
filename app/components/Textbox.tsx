@@ -15,18 +15,18 @@ function Textbox() {
     }
   }, [text]);
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     const textTrimmed = text.trim();
     if (!textTrimmed) return;
-    sendToBot(textTrimmed);
+    sendToBot(textTrimmed); // no await,
     setText("");
   };
 
   return (
     <form
       onSubmit={handleSubmit}
-      className="flex items-end gap-2 p-3 bg-white/90 border border-gray-200 rounded-2xl shadow-sm">
-      <button
+      className="flex gap-2 p-3 bg-white border border-gray-600 rounded-2xl shadow-sm w-[95%]">
+      {/* <button
         type="button"
         className="p-2 text-gray-500 hover:text-gray-700"
         aria-label="Attach">
@@ -43,7 +43,7 @@ function Textbox() {
             d="M21.44 11.05L12.95 2.56a5 5 0 00-7.07 7.07l8.49 8.49a3 3 0 004.24-4.24L9.36 5.9"
           />
         </svg>
-      </button>
+      </button> */}
 
       <div className="flex-1">
         <textarea
@@ -68,9 +68,9 @@ function Textbox() {
         aria-label="Send">
         <svg
           xmlns="http://www.w3.org/2000/svg"
-          className="h-5 w-5 -rotate-45"
+          fill="currentColor"
           viewBox="0 0 24 24"
-          fill="currentColor">
+          className="w-6 h-6">
           <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
         </svg>
       </button>

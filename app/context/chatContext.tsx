@@ -2,67 +2,78 @@
 
 import { createContext, useContext, useState, ReactNode } from "react";
 
-type Message = {
-  id: number;
+export type Message = {
+  id: string;
   sender: "user" | "bot";
   text: string;
 };
 
-type ChatContextType = {
+export type ChatContextType = {
   chatMessages: Message[];
-  addChatMessage: (msg: string) => void;
-  addBotReply: (msg: string) => void;
-  sendToBot: (msg: string) => void;
+  botMessage: string | null;
+  addChatMessage: (msg: Message) => void;
+  sendToBot: (userText: string) => Promise<void>;
+  loading: boolean;
 };
 
-const ChatContext = createContext<ChatContextType | null>(null);
+const ChatContext = createContext<ChatContextType | undefined>(undefined);
 
 export const ChatProvider = ({ children }: { children: ReactNode }) => {
   const [chatMessages, setChatMessages] = useState<Message[]>([]);
+  const [botMessage, setBotMessage] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
-  const addChatMessage = (msg: string) =>
-    setChatMessages((prevMessages) => [
-      ...prevMessages,
-      {
-        id: Date.now() + Math.floor(Math.random() * 999) + 1,
-        sender: "user",
-        text: msg,
-      },
-    ]);
-
-  const addBotReply = (msg: string) => {
-    setChatMessages((prevMessages) => [
-      ...prevMessages,
-      {
-        id: Date.now() + Math.floor(Math.random() * 999) + 1,
-        sender: "bot",
-        text: msg,
-      },
-    ]);
+  const addChatMessage = (msg: Message) => {
+    setChatMessages((prevMessages) => [...prevMessages, msg]);
+    if (msg.sender === "bot") {
+      setBotMessage(msg.text);
+    }
   };
 
-  const sendToBot = async (msg: string) => {
-    addChatMessage(msg);
+  const sendToBot = async (userText: string) => {
+    if (!userText.trim()) return;
+
+    const userMessage: Message = {
+      id: Date.now().toString(),
+      sender: "user",
+      text: userText,
+    };
+
+    addChatMessage(userMessage);
+    setLoading(true);
+
     try {
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ prompt: msg }),
+        body: JSON.stringify({ prompt: userText }),
       });
 
+      if (!res.ok) throw new Error(`API Bot Error: ${res.statusText}`);
       const data = await res.json();
-      addBotReply(data.text); // bot replay json "text: """
+      const botReplyMessage: Message = {
+        id: "bot-" + Date.now().toString(),
+        sender: "bot",
+        text: data.text || "Sorry, I couldn’t understand that.",
+      };
+      addChatMessage(botReplyMessage); // bot replay json "text: """
     } catch (error) {
-      console.log(error);
-      addBotReply("Sorry, something went wrong. Please try again.");
+      console.error("Bot error:", error);
+      addChatMessage({
+        id: "error-" + Date.now().toString(),
+        sender: "bot",
+        text: "Sorry, there was an error processing your request.",
+      });
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <ChatContext.Provider
-      value={{ chatMessages, addChatMessage, addBotReply, sendToBot }}>
+      value={{ chatMessages, addChatMessage, botMessage, sendToBot, loading }}>
       {children}
     </ChatContext.Provider>
   );
