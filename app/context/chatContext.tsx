@@ -1,11 +1,13 @@
 "use client";
 
 import { createContext, useContext, useState, ReactNode } from "react";
+import { generateID, getCurrentDate } from "../lib/utils";
 
 export type Message = {
   id: string;
   sender: "user" | "bot";
   text: string;
+  timestamps: string;
 };
 
 export type ChatContextType = {
@@ -34,9 +36,10 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
     if (!userText.trim()) return;
 
     const userMessage: Message = {
-      id: Date.now().toString(),
+      id: "user-" + generateID(),
       sender: "user",
       text: userText,
+      timestamps: getCurrentDate(),
     };
 
     addChatMessage(userMessage);
@@ -54,17 +57,19 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
       if (!res.ok) throw new Error(`API Bot Error: ${res.statusText}`);
       const data = await res.json();
       const botReplyMessage: Message = {
-        id: "bot-" + Date.now().toString(),
+        id: "bot-" + generateID(),
         sender: "bot",
         text: data.text || "Sorry, I couldn’t understand that.",
+        timestamps: getCurrentDate(),
       };
       addChatMessage(botReplyMessage); // bot replay json "text: """
     } catch (error) {
       console.error("Bot error:", error);
       addChatMessage({
-        id: "error-" + Date.now().toString(),
+        id: "error-" + generateID(),
         sender: "bot",
         text: "Sorry, there was an error processing your request.",
+        timestamps: getCurrentDate(),
       });
     } finally {
       setLoading(false);

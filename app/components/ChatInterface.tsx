@@ -7,13 +7,6 @@ function ChatInterface() {
   const autoScrollOnEndOnNewMessageRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    if (chatMessages.length === 0) {
-      addChatMessage({
-        id: "bot-" + Date.now() + Math.floor(Math.random() * 999) + 1,
-        sender: "bot",
-        text: "Feel Free to ask...",
-      });
-    }
     autoScrollOnEndOnNewMessageRef.current?.scrollIntoView({
       behavior: "smooth",
     });
@@ -32,18 +25,19 @@ function ChatInterface() {
       {chatMessages.map((m) => (
         <div
           key={m.id}
-          className={`mb-2 ${
-            m.sender === "user"
-              ? "text-right justify-end"
-              : "text-left justify-start"
+          className={`mb-4 flex flex-col ${
+            m.sender === "user" ? "items-end" : "items-start"
           }`}>
           <span
-            className={`inline-block px-3 py-2 rounded-xl wrap-break-words ${
+            className={`px-3 py-2 rounded-xl max-w-[75%] wrap-break-word ${
               m.sender === "user"
-                ? "bg-gray-300 text-black max-w-[80%]"
-                : "bg-[#EAE4D5] text-black max-w-[80%] ml-auto border border-[#EAE4D5]"
+                ? "bg-gray-300 text-black text-right"
+                : "bg-[#EAE4D5] text-black text-left"
             }`}>
             {m.text}
+          </span>
+          <span className="text-xs text-gray-400 mt-1 ml-2 opacity-80">
+            {m.timestamps}
           </span>
         </div>
       ))}
