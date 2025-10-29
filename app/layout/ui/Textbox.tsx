@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useRef, useEffect } from "react";
-import { useChat } from "../context/chatContext";
-import { handleChatKeyDown } from "../lib/handleKeyDown";
+import { useChat } from "../../context/chatContext";
+import { handleChatKeyDown } from "../../lib/handleKeyDown";
 
 function Textbox() {
   const { sendToBot } = useChat(); // addchatmessage is moved in chatcontextfunc

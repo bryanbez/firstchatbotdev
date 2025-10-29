@@ -1,5 +1,5 @@
-import BottomPart from "./BottomPart";
-import HistoryButton from "./HistoryButton";
+import BottomPart from "../section/Footer";
+import HistoryButton from "../section/HistoryButton";
 
 function MainComponent() {
   return (

@@ -1,14 +1,8 @@
 "use client";
 
 import { createContext, useContext, useState, ReactNode } from "react";
-import { generateID, getCurrentDate } from "../lib/utils";
-
-export type Message = {
-  id: string;
-  sender: "user" | "bot";
-  text: string;
-  timestamps: string;
-};
+import { createBotMessage, createUserMessage } from "../lib/functions/chats";
+import { Message } from "../lib/types/chats";
 
 export type ChatContextType = {
   chatMessages: Message[];
@@ -34,16 +28,10 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
 
   const sendToBot = async (userText: string) => {
     if (!userText.trim()) return;
-
-    const userMessage: Message = {
-      id: "user-" + generateID(),
-      sender: "user",
-      text: userText,
-      timestamps: getCurrentDate(),
-    };
-
-    addChatMessage(userMessage);
     setLoading(true);
+
+    const userMessage = createUserMessage(userText);
+    addChatMessage(userMessage);
 
     try {
       const res = await fetch("/api/chat", {
@@ -56,21 +44,12 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
 
       if (!res.ok) throw new Error(`API Bot Error: ${res.statusText}`);
       const data = await res.json();
-      const botReplyMessage: Message = {
-        id: "bot-" + generateID(),
-        sender: "bot",
-        text: data.text || "Sorry, I couldn’t understand that.",
-        timestamps: getCurrentDate(),
-      };
+      const botReplyMessage = createBotMessage(
+        data.text || "Sorry, i cant answer the question. Try again"
+      );
       addChatMessage(botReplyMessage); // bot replay json "text: """
     } catch (error) {
       console.error("Bot error:", error);
-      addChatMessage({
-        id: "error-" + generateID(),
-        sender: "bot",
-        text: "Sorry, there was an error processing your request.",
-        timestamps: getCurrentDate(),
-      });
     } finally {
       setLoading(false);
     }

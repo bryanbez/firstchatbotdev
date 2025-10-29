@@ -1,6 +1,6 @@
 "use client";
+import { useChat } from "@/app/context/chatContext";
 import React, { useEffect, useRef } from "react";
-import { useChat } from "../context/chatContext";
 
 function ChatInterface() {
   const { chatMessages, addChatMessage, loading } = useChat();
@@ -37,7 +37,7 @@ function ChatInterface() {
             {m.text}
           </span>
           <span className="text-xs text-gray-400 mt-1 ml-2 opacity-80">
-            {m.timestamps}
+            {m.timestamp}
           </span>
         </div>
       ))}
