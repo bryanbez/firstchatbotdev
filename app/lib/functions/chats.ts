@@ -1,16 +1,14 @@
 import { Message } from "../types/chats";
 import { generateID, getCurrentDate } from "../utils";
 
-export const createUserMessage = (text: string): Message => ({
-  id: "user-" + generateID(),
-  sender: "user",
-  text,
-  timestamp: getCurrentDate(),
-});
-
-export const createBotMessage = (text: string): Message => ({
-  id: "bot-" + generateID(),
-  sender: "bot",
+export const createSessionMessage = (
+  text: string,
+  whosMessage: "user" | "bot",
+  replyingTo?: string
+): Message => ({
+  id: "chat-" + generateID(),
+  sender: whosMessage,
+  replyingTo: replyingTo,
   text,
   timestamp: getCurrentDate(),
 });

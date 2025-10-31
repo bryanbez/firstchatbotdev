@@ -8,12 +8,31 @@ function Textbox() {
   const [text, setText] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
+  //const { currentChatSession } = useChat();
+
   useEffect(() => {
     if (textareaRef.current) {
       textareaRef.current.style.height = "auto";
       textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
     }
   }, [text]);
+
+  // useEffect(() => {
+  //   if (currentChatSession?.messages?.length) {
+  //     const saveChat = async () => {
+  //       const res = await fetch("/api/chat/save", {
+  //         method: "POST",
+  //         headers: {
+  //           "Content-Type": "application/json",
+  //         },
+  //         body: JSON.stringify(currentChatSession),
+  //       });
+  //       const data = await res.json();
+  //       console.log("Chat session saved:", data);
+  //     };
+  //     saveChat();
+  //   }
+  // }, [currentChatSession]);
 
   const handleSubmit = async () => {
     const textTrimmed = text.trim();

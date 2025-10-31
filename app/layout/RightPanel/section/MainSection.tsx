@@ -3,7 +3,7 @@ import { useChat } from "@/app/context/chatContext";
 import React, { useEffect, useRef } from "react";
 
 function ChatInterface() {
-  const { chatMessages, addChatMessage, loading } = useChat();
+  const { chatMessages, addChatMessage, loadingSession } = useChat();
   const autoScrollOnEndOnNewMessageRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -42,7 +42,7 @@ function ChatInterface() {
         </div>
       ))}
       {/* bot thinking */}
-      {loading && (
+      {loadingSession && (
         <div className="flex justify-start">
           <div className="text-gray-700 px-4 py-2 rounded-2xl max-w-[75%] italic animate-pulse">
             Thinking<span className="animate-pulse">...</span>

@@ -8,7 +8,7 @@ function MainComponent() {
         <h2 className="text-4xl font-bold mb-1">WebLLM Chat</h2>
         <p>A.I. Model Helper</p>
       </div>
-      <div className="flex-7 items-center justify-center p-4 ">
+      <div className="flex-7 items-center justify-center p-4 overflow-y-auto ">
         <HistoryButton />
       </div>
       <div className="flex-2 ">

@@ -3,7 +3,7 @@ import { ChatSession } from "../types/chats";
 
 export async function saveChatSession(session: ChatSession) {
   const db = await getDB();
-  const collection = db.collection<ChatSession>("chats");
+  const collection = db.collection<ChatSession>("brychatbot");
   await collection.insertOne(session);
 }
 
