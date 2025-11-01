@@ -45,7 +45,7 @@ export async function POST(req: Request) {
     }
 
     const response = await gemini_ai.models.generateContent({
-      model: "gemini-2.5-flash-lite",
+      model: "gemini-2.5-flash",
       config: {
         temperature: 1.5,
         maxOutputTokens: 500,

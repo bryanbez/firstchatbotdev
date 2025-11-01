@@ -1,14 +1,14 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
-import { ChatSession, Message } from "@/app/lib/types/chats";
+import { ChatSession } from "@/app/lib/types/chats";
 import { useChat } from "@/app/context/chatContext";
 
 function HistoryButton() {
   const [chats, setChats] = useState<ChatSession[]>([]);
   const chatCache = useRef<ChatSession[]>([]);
   // const [activeChatSessionID, setActiveChatSessionID] = useState<string>("");
-  const { loadChatSession } = useChat();
+  const { setChatSession } = useChat();
 
   useEffect(() => {
     const loadChats = async () => {
@@ -24,7 +24,7 @@ function HistoryButton() {
   const displayMessages = (chat_id: string): ChatSession[] => {
     const findSession = chats.find((chat) => chat.chat_id === chat_id);
     if (!findSession) return [];
-    loadChatSession(findSession);
+    setChatSession(findSession, "load");
     return [findSession];
   };
 
@@ -37,14 +37,14 @@ function HistoryButton() {
           <div
             key={chat.chat_id}
             onClick={() => displayMessages(chat.chat_id || "")}
-            className="rounded-xl p-4 mb-2 border border-black h-20 lifting-animation-btn">
-            <div className="text-lg">
-              <h3 className="font-bold"> {chat.title} </h3>
+            className="rounded-xl p-3 mb-2 border border-black min-h-[10%] lifting-animation-btn">
+            <div className="text-sm">
+              <p className="font-normal"> {chat.title} </p>
             </div>
-            <div className="flex justify-between text-xs">
+            {/* <div className="flex justify-between text-xs">
               <span> {chat.created?.toString().slice(0, 10)} </span>
               <span> {chat.messages?.length} messages</span>
-            </div>
+            </div> */}
           </div>
         ))
       )}

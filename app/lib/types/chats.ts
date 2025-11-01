@@ -22,3 +22,5 @@ export interface ChatSession {
   title?: string | null;
   metadata?: Metadata[];
 }
+
+export type ChatAction = "new" | "load";

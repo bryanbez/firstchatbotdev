@@ -1,3 +1,5 @@
+"use client";
+
 import React, { ReactNode } from "react";
 
 import DownloadIcon from "@/app/svg/download";
@@ -5,6 +7,7 @@ import GithubIcon from "@/app/svg/github";
 import GlobeIcon from "@/app/svg/globe";
 import ShareIcon from "@/app/svg/share";
 import PlusIcon from "@/app/svg/plus";
+import useButtonHandlers from "./buttonHandlers";
 
 type ButtonVariant = "primary" | "secondary" | "textOnly";
 
@@ -24,11 +27,23 @@ const variantClasses: Record<ButtonVariant, string> = {
   textOnly: "px-3 py-2 rounded-xl bg-white font-bold lifting-animation-btn",
 };
 
-export const buttonsOnFooter: ButtonProps[] = [
+export const buttonsOnFooter = (
+  handlers: ReturnType<typeof useButtonHandlers>
+): ButtonProps[] => [
   { Icon: GlobeIcon, label: "", tooltipLabel: "Website" },
-  { Icon: GithubIcon, label: "", tooltipLabel: "Github Link" },
+  {
+    Icon: GithubIcon,
+    label: "",
+    tooltipLabel: "Github Link",
+    onClick: () => handlers.handleGithubPage(),
+  },
   { Icon: GlobeIcon, label: "", tooltipLabel: "Website" },
-  { Icon: PlusIcon, label: "", tooltipLabel: "Add Chat" },
+  {
+    Icon: PlusIcon,
+    label: "",
+    tooltipLabel: "Add Chat",
+    onClick: () => handlers.handleNewChat(),
+  },
 ];
 
 export const buttonsOnNavbar: ButtonProps[] = [

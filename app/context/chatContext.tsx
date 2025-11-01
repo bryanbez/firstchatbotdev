@@ -1,5 +1,3 @@
-"use client";
-
 import {
   createContext,
   useContext,
@@ -7,19 +5,22 @@ import {
   ReactNode,
   useEffect,
 } from "react";
-import { createSessionMessage } from "../lib/functions/chats";
+import {
+  createNewChatSession,
+  createSessionMessage,
+} from "../lib/functions/chats";
 import { Message } from "../lib/types/chats";
-import { ChatSession } from "../lib/types/chats";
-import { generateID } from "../lib/utils";
+import { ChatSession, ChatAction } from "../lib/types/chats";
+import { saveOrUpdateChatsApi } from "../lib/apiCall";
 
 export type ChatContextType = {
   chatMessages: Message[];
   setChatMessages: (messages: Message[]) => void;
-  loadChatSession: (session: ChatSession) => void;
   currentChatSession: ChatSession | undefined;
   addChatMessage: (msg: Message) => void;
   sendToBot: (userText: string) => Promise<void>;
   loadingSession: boolean;
+  setChatSession: (session: ChatSession, action: ChatAction) => void;
 };
 
 const ChatContext = createContext<ChatContextType | undefined>(undefined);
@@ -29,27 +30,8 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
   const [currentChatSession, setCurrentChatSession] = useState<ChatSession>();
   const [loadingSession, setLoadingSession] = useState(false);
 
-  const loadChatSession = (session: ChatSession) => {
-    setLoadingSession(true);
-    setCurrentChatSession(session);
-    setChatMessages(session.messages || []);
-    console.warn("Loaded Picked Chat Session:", session);
-    setLoadingSession(false);
-  };
-
   useEffect(() => {
-    if (loadingSession) return;
-    const session: ChatSession = {
-      chat_id: generateID(),
-      user_id: "user-" + generateID(),
-      bot_id: "bot-" + generateID(),
-      title: null,
-      messages: [],
-      created: new Date(),
-      updated: new Date(),
-    };
-    setCurrentChatSession(session);
-    setChatMessages(session.messages || []); // This will be []
+    setChatSession(createNewChatSession(), "new");
   }, []); // Initialize the data
 
   useEffect(() => {
@@ -61,33 +43,44 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
     );
   }, [chatMessages]); // update the conversation if theres new
 
+  const setChatSession = (session: ChatSession, action: ChatAction) => {
+    setLoadingSession(true);
+    switch (action) {
+      case "new":
+        setCurrentChatSession(session);
+        setChatMessages([]);
+        break;
+      case "load":
+        setCurrentChatSession(session);
+        setChatMessages(session.messages || []);
+        break;
+      default:
+        break;
+    }
+    setLoadingSession(false);
+  };
+
   const addChatMessage = (msg: Message) => {
-    setChatMessages((prevMessages) => [...prevMessages, msg]);
     // ensures the title doesnt overwrite if no defined title
     // (basing on first chat of user)
     if (msg.sender === "user") {
       setCurrentChatSession((prev) => {
-        if (!prev) return undefined;
-        if (prev.title) return prev;
-
+        if (!prev) return prev;
         return {
           ...prev,
-          title: msg.text,
+          messages: [...(prev.messages ?? []), msg],
+          title: prev.title || msg.text,
           updated: new Date(),
         };
       });
     }
+    setChatMessages((prevMessages) => [...prevMessages, msg]); // for real-time counting message
   };
 
   const sendToBot = async (userText: string) => {
     if (!userText.trim()) return;
-    setLoadingSession(true);
 
-    if (!currentChatSession) {
-      console.error("No active session found");
-      setLoadingSession(false);
-      return;
-    }
+    setLoadingSession(true);
 
     const userMessage = createSessionMessage(userText, "user");
     addChatMessage(userMessage);
@@ -95,14 +88,13 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
     try {
       const res = await fetch("/api/chat", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ prompt: userText }),
       });
 
       if (!res.ok) throw new Error(`API Bot Error: ${res.statusText}`);
       const data = await res.json();
+
       const botReplyMessage = createSessionMessage(
         data.text || "Sorry, i cant answer the question. Try again",
         "bot",
@@ -112,34 +104,20 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
       addChatMessage(botReplyMessage); // bot replay json "text: """
 
       const submittedChatSession = {
-        chat_id: currentChatSession.chat_id,
-        user_id: currentChatSession.user_id,
-        bot_id: currentChatSession.bot_id,
-        title: currentChatSession.title ?? userText,
+        chat_id: currentChatSession?.chat_id,
+        user_id: currentChatSession?.user_id,
+        bot_id: currentChatSession?.bot_id,
+        title: currentChatSession?.title ?? userText,
         messages: [
-          ...(currentChatSession.messages || []),
+          ...(currentChatSession?.messages || []),
           userMessage,
           botReplyMessage,
         ],
       };
 
-      const saveOrUpdateinDB = await fetch("/api/chat/save", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(submittedChatSession),
-      });
-      const response = await saveOrUpdateinDB.json();
-      console.log("Chat session saved:", response); // stooped at here: 10:10pm Oct. 31
+      const saveOrUpdate = await saveOrUpdateChatsApi(submittedChatSession);
 
-      // await fetch("/api/chats/save", {
-      //   method: "POST",
-      //   headers: { "Content-Type": "application/json" },
-      //   body: JSON.stringify({
-
-      //   }),
-      // });
+      return saveOrUpdate;
     } catch (error) {
       console.error("Bot error:", error);
     } finally {
@@ -156,7 +134,7 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
         sendToBot,
         loadingSession,
         setChatMessages,
-        loadChatSession,
+        setChatSession,
       }}>
       {children}
     </ChatContext.Provider>

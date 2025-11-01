@@ -1,4 +1,4 @@
-import ButtonUI, { buttonsOnNavbar } from "../../ui/Button";
+import ButtonUI, { buttonsOnNavbar } from "../../ui/Button/Button";
 
 function NavbarButtons() {
   return (

@@ -5,6 +5,6 @@ import { ChatSession } from "@/app/lib/types/chats";
 export async function GET() {
   const db = await getDB();
   const collection = db.collection<ChatSession>("chats");
-  const result = await collection.find({}).toArray();
+  const result = await collection.find().sort({ updated: -1 }).toArray();
   return NextResponse.json({ chats: result });
 }
