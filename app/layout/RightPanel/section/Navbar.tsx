@@ -1,9 +1,7 @@
-import { useChat } from "@/app/context/chatContext";
+import { useTitleChatContext } from "@/app/hooks/useChatTitle";
 
 const TitlePart = () => {
-  const { currentChatSession } = useChat();
-  console.log(currentChatSession?.messages?.length);
-  const messagesLength = currentChatSession?.messages?.length ?? 0;
+  const { messagesLength, currentChatSession } = useTitleChatContext();
 
   return (
     <div className="flex flex-col justify-end items-start ml-[5%]">

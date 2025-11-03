@@ -11,6 +11,7 @@ export async function saveOrUpdateChatSession(session: ChatSession) {
 
   if (existing) {
     // Update only messages & updated time
+    console.log(session);
     const updateChats = await db
       .collection<ChatSession>("chats")
       .updateOne(

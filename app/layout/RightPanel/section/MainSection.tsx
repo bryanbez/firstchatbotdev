@@ -1,6 +1,7 @@
 "use client";
 import { useChat } from "@/app/context/chatContext";
-import React, { useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
+import ReactMarkdown from "react-markdown";
 
 function ChatInterface() {
   const { chatMessages, addChatMessage, loadingSession } = useChat();
@@ -34,7 +35,7 @@ function ChatInterface() {
                 ? "bg-gray-300 text-black text-right"
                 : "bg-[#EAE4D5] text-black text-left"
             }`}>
-            {m.text}
+            <pre className="whitespace-pre-wrap">{m.text}</pre>
           </span>
           <span className="text-xs text-gray-400 mt-1 ml-2 opacity-80">
             {m.timestamp}

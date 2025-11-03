@@ -12,13 +12,14 @@ import {
 import { Message } from "../lib/types/chats";
 import { ChatSession, ChatAction } from "../lib/types/chats";
 import { saveOrUpdateChatsApi } from "../lib/apiCall";
+import { SavingChatResponse } from "../lib/types/apiCalls";
 
 export type ChatContextType = {
   chatMessages: Message[];
   setChatMessages: (messages: Message[]) => void;
   currentChatSession: ChatSession | undefined;
   addChatMessage: (msg: Message) => void;
-  sendToBot: (userText: string) => Promise<void>;
+  sendToBot: (userText: string) => Promise<SavingChatResponse | undefined>;
   loadingSession: boolean;
   setChatSession: (session: ChatSession, action: ChatAction) => void;
 };
@@ -77,7 +78,9 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
     setChatMessages((prevMessages) => [...prevMessages, msg]); // for real-time counting message
   };
 
-  const sendToBot = async (userText: string) => {
+  const sendToBot = async (
+    userText: string
+  ): Promise<SavingChatResponse | undefined> => {
     if (!userText.trim()) return;
 
     setLoadingSession(true);
@@ -108,16 +111,12 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
         user_id: currentChatSession?.user_id,
         bot_id: currentChatSession?.bot_id,
         title: currentChatSession?.title ?? userText,
-        messages: [
-          ...(currentChatSession?.messages || []),
-          userMessage,
-          botReplyMessage,
-        ],
+        messages: [...(chatMessages || []), userMessage, botReplyMessage],
       };
 
-      const saveOrUpdate = await saveOrUpdateChatsApi(submittedChatSession);
+      const saving = await saveOrUpdateChatsApi(submittedChatSession);
 
-      return saveOrUpdate;
+      return saving;
     } catch (error) {
       console.error("Bot error:", error);
     } finally {

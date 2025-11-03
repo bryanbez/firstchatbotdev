@@ -1,13 +1,24 @@
 import { ChatSession } from "./types/chats";
+import { SavingChatResponse } from "./types/apiCalls";
 
-export async function saveOrUpdateChatsApi(session: ChatSession) {
-  const saveOrUpdateinDB = await fetch("/api/chat/save", {
+type ChatsResponse = { chats: ChatSession[] };
+
+export async function saveOrUpdateChatsApi(
+  session: ChatSession
+): Promise<SavingChatResponse> {
+  const res = await fetch("/api/chat/save", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
     body: JSON.stringify(session),
   });
-  const response = await saveOrUpdateinDB.json();
-  return response;
+  if (!res.ok) throw new Error("Failed to save chat session");
+  return await res.json();
+}
+
+export async function fetchAllChats(): Promise<ChatSession[]> {
+  const res = await fetch("/api/chat/chats");
+  const data: ChatsResponse = await res.json();
+  return data.chats;
 }

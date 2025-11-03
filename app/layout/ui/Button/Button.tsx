@@ -8,6 +8,7 @@ import GlobeIcon from "@/app/svg/globe";
 import ShareIcon from "@/app/svg/share";
 import PlusIcon from "@/app/svg/plus";
 import useButtonHandlers from "./buttonHandlers";
+import TrashIcon from "@/app/svg/trash";
 
 type ButtonVariant = "primary" | "secondary" | "textOnly";
 
@@ -49,6 +50,7 @@ export const buttonsOnFooter = (
 export const buttonsOnNavbar: ButtonProps[] = [
   { Icon: DownloadIcon, label: "", tooltipLabel: "Download" },
   { Icon: ShareIcon, label: "", tooltipLabel: "Share" },
+  { Icon: TrashIcon, label: "", tooltipLabel: "Trash" },
 ];
 
 const ButtonUI: React.FC<ButtonProps> = ({

@@ -6,6 +6,21 @@
   }
 }
 
+@keyframes slideIn {
+  from {
+    transform: translateX(-10px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.animate-slide-in {
+  animation: slideIn 0.25s ease-out forwards;
+}
+
 @layer components {
   .centered-component-using-absolute {
     @apply absolute top-1/2 left-[5%] translate-y-[-50%];

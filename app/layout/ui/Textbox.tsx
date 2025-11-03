@@ -2,13 +2,15 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useChat } from "../../context/chatContext";
 import { handleChatKeyDown } from "../../lib/handleKeyDown";
+import { useChatHistoryContext } from "@/app/context/chatHistoryContext";
+import { SavingChatResponse } from "@/app/lib/types/apiCalls";
 
 function Textbox() {
   const { sendToBot } = useChat(); // addchatmessage is moved in chatcontextfunc
+  const { refreshChats } = useChatHistoryContext();
+
   const [text, setText] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
-
-  //const { currentChatSession } = useChat();
 
   useEffect(() => {
     if (textareaRef.current) {
@@ -17,53 +19,20 @@ function Textbox() {
     }
   }, [text]);
 
-  // useEffect(() => {
-  //   if (currentChatSession?.messages?.length) {
-  //     const saveChat = async () => {
-  //       const res = await fetch("/api/chat/save", {
-  //         method: "POST",
-  //         headers: {
-  //           "Content-Type": "application/json",
-  //         },
-  //         body: JSON.stringify(currentChatSession),
-  //       });
-  //       const data = await res.json();
-  //       console.log("Chat session saved:", data);
-  //     };
-  //     saveChat();
-  //   }
-  // }, [currentChatSession]);
-
   const handleSubmit = async () => {
     const textTrimmed = text.trim();
     if (!textTrimmed) return;
-    sendToBot(textTrimmed); // no await,
     setText("");
+    const saving = await sendToBot(textTrimmed);
+    if (saving && saving.success === true) {
+      await refreshChats();
+    }
   };
 
   return (
     <form
       onSubmit={handleSubmit}
       className="flex gap-2 p-3 bg-white border border-gray-600 rounded-2xl shadow-sm w-[95%]">
-      {/* <button
-        type="button"
-        className="p-2 text-gray-500 hover:text-gray-700"
-        aria-label="Attach">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          className="h-5 w-5"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor">
-          <path
-            strokeWidth="1.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M21.44 11.05L12.95 2.56a5 5 0 00-7.07 7.07l8.49 8.49a3 3 0 004.24-4.24L9.36 5.9"
-          />
-        </svg>
-      </button> */}
-
       <div className="flex-1">
         <textarea
           ref={textareaRef}
