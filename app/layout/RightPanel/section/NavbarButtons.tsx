@@ -1,5 +1,6 @@
 import { useChat } from "@/app/context/chatContext";
-import ButtonUI, { buttonsOnNavbar } from "../../ui/Button/Button";
+import ButtonUI from "../../ui/Button/Button";
+import { buttonsOnNavbar } from "../../ui/Button/button.constants";
 
 function NavbarButtons() {
   const { chatMessages } = useChat();

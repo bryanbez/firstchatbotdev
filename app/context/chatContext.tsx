@@ -11,7 +11,7 @@ import {
 } from "../lib/functions/chats";
 import { Message } from "../lib/types/chats";
 import { ChatSession, ChatAction } from "../lib/types/chats";
-import { saveOrUpdateChatsApi } from "../lib/apiCall";
+import { botResponseApi, saveOrUpdateChatsApi } from "../lib/apiCall";
 import { SavingChatResponse } from "../lib/types/apiCalls";
 
 export type ChatContextType = {
@@ -22,27 +22,32 @@ export type ChatContextType = {
   sendToBot: (userText: string) => Promise<SavingChatResponse | undefined>;
   loadingSession: boolean;
   setChatSession: (session: ChatSession, action: ChatAction) => void;
+  modelPick: string;
+  setModelPick: (model: string) => void;
 };
 
 const ChatContext = createContext<ChatContextType | undefined>(undefined);
 
 export const ChatProvider = ({ children }: { children: ReactNode }) => {
   const [chatMessages, setChatMessages] = useState<Message[]>([]);
-  const [currentChatSession, setCurrentChatSession] = useState<ChatSession>();
+  const [currentChatSession, setCurrentChatSession] = useState<ChatSession>(
+    createNewChatSession()
+  );
+  const [modelPick, setModelPick] = useState("summarizer");
   const [loadingSession, setLoadingSession] = useState(false);
 
   useEffect(() => {
     setChatSession(createNewChatSession(), "new");
   }, []); // Initialize the data
 
-  useEffect(() => {
-    if (loadingSession || chatMessages.length === 0) return;
-    setCurrentChatSession((prev) =>
-      prev
-        ? { ...prev, messages: chatMessages, updated: new Date() }
-        : undefined
-    );
-  }, [chatMessages]); // update the conversation if theres new
+  // useEffect(() => {
+  //   if (loadingSession || chatMessages.length === 0) return;
+  //   setCurrentChatSession((prev) =>
+  //     prev
+  //       ? { ...prev, messages: chatMessages, updated: new Date() }
+  //       : undefined
+  //   );
+  // }, [chatMessages]); // update the conversation if theres new
 
   const setChatSession = (session: ChatSession, action: ChatAction) => {
     setLoadingSession(true);
@@ -89,17 +94,13 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
     addChatMessage(userMessage);
 
     try {
-      const res = await fetch("/api/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt: userText }),
+      const { title, answer } = await botResponseApi({
+        prompt: userText,
+        modelPick: modelPick,
       });
 
-      if (!res.ok) throw new Error(`API Bot Error: ${res.statusText}`);
-      const data = await res.json();
-
       const botReplyMessage = createSessionMessage(
-        data.text || "Sorry, i cant answer the question. Try again",
+        answer || "Sorry, i cant answer the question. Try again",
         "bot",
         userMessage.id
       );
@@ -110,7 +111,7 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
         chat_id: currentChatSession?.chat_id,
         user_id: currentChatSession?.user_id,
         bot_id: currentChatSession?.bot_id,
-        title: currentChatSession?.title ?? userText,
+        title: title,
         messages: [...(chatMessages || []), userMessage, botReplyMessage],
       };
 
@@ -134,6 +135,8 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
         loadingSession,
         setChatMessages,
         setChatSession,
+        modelPick,
+        setModelPick,
       }}>
       {children}
     </ChatContext.Provider>

@@ -1,5 +1,6 @@
-import ButtonUI, { buttonsOnFooter } from "../../ui/Button/Button";
-import useButtonHandlers from "../../ui/Button/buttonHandlers";
+import ButtonUI from "../../ui/Button/Button";
+import { buttonsOnFooter } from "../../ui/Button/button.constants";
+import useButtonHandlers from "../../ui/Button/button.handler";
 
 function BottomPart() {
   const handlers = useButtonHandlers();
@@ -7,19 +8,19 @@ function BottomPart() {
 
   return (
     <div className="flex items-center justify-center gap-4 h-full">
-      {buttons.map((btn, index) => (
+      {buttons.map(({ Icon, label, tooltipLabel, onClick }, index) => (
         <div key={index} className="justify-center relative group inline-block">
           <div className="flex items-center justify-center">
-            {btn.Icon ? (
-              <ButtonUI onClick={btn.onClick}>
-                <btn.Icon />
+            {Icon ? (
+              <ButtonUI onClick={onClick}>
+                <Icon />
               </ButtonUI>
             ) : (
               <ButtonUI variant="textOnly">
-                <span>{btn.label}</span>
+                <span>{label}</span>
               </ButtonUI>
             )}
-            <span className="tooltip">{btn.tooltipLabel}</span>
+            <span className="tooltip">{tooltipLabel}</span>
           </div>
         </div>
       ))}

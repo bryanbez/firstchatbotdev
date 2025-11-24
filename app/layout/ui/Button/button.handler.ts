@@ -4,7 +4,7 @@ import { useChat } from "@/app/context/chatContext";
 import { createNewChatSession } from "@/app/lib/functions/chats";
 
 const useButtonHandlers = () => {
-  const { setChatSession } = useChat();
+  const { setChatSession, setModelPick } = useChat();
 
   return {
     handleNewChat: () => {
@@ -12,6 +12,9 @@ const useButtonHandlers = () => {
     },
     handleGithubPage: () => {
       alert("Working");
+    },
+    handleModelTypePick: (model: string) => {
+      setModelPick(model);
     },
   };
 };
